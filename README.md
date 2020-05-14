@@ -45,3 +45,5 @@ $ sudo apt-get update
 $ sudo apt-get upgrade
 $ sudo apt install chromium-browser
 ```
+
+If you get a console error complaining that it can't find a browser run ```$ npm i puppeteer``` from your install directory. For some reason it doesn't always install the chromium browser if installed from ```$ npm i```.
