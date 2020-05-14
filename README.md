@@ -3,9 +3,9 @@ I bake a lot. Bread, pizza, more bread. These corona flour shortages have really
 
 ## Installation
 Clone this repository and npm install
-```$ git clone https://github.com/CuriouslyCory/ProductWatcher.git
-$ cd ProductWatcher
-$ npm i```
+```$ git clone https://github.com/CuriouslyCory/ProductWatcher.git```
+```$ cd ProductWatcher```
+```$ npm i```
 
 Update the twilio-settings.js file with your own api keys.
 
