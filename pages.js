@@ -13,4 +13,12 @@ module.exports = [
         contains: /Item is temporarily unavailable\./,
         notificationMsg: 'King Arthur AP Flour in stock!'
     },
+    {
+        id: 'Reel-Paper-TP',
+        url: 'https://reelpaper.com/',
+        selector: '.announcement-bar',
+        contains: /TEMPORARILY SOLD OUT\./,
+        notificationMsg: 'Reel TP is in stock!'
+    },
+    
 ]
