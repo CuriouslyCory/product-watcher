@@ -4,6 +4,7 @@ const puppeteer = require('puppeteer');
 // the following are our twilio credentials (sign up for a free trial at https://www.twilio.com/referral/MyIhxE)
 const twilioKeys = require ('./twilio-settings');
 const client = require('twilio')(twilioKeys.accountSid, twilioKeys.authToken);
+const pages = require ('./pages');
 
 // node schedule acts as a crontab, allowing us to set a schedule to run functions
 var schedule = require('node-schedule');
@@ -11,50 +12,84 @@ var schedule = require('node-schedule');
 // sanitize our code
 (async () => {
     
-    // basically our init script, schedule the job to run every 10 minutes
-    var j = schedule.scheduleJob('*/10 * * * *', () => {
-        scrapeFlour();
-    });
+    // set the schedule frequency in minutes
+    var scheduleFrequency = 10;
 
-    // our async function to actually scrape the website and check stock
-    async function scrapeFlour()
-    {
-        // the following args are required for running chromium-browser in WSL2
-        const browser = await puppeteer.launch({
-            args: ['--disable-gpu', '--single-process','--no-sandbox'] 
-        });
-
-        const page = await browser.newPage();
-
-        // set the user agent to something the site will recognize and accept
-        await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36');
-        
-        // open and render the page
-        await page.goto('https://www.vitacost.com/bobs-red-mill-artisan-bread-flour-unbleached-enriched');
-
-        // check for the element we're looking for, in this case, an out of stock message
-        const element = await page.$(".pBuyMsgOOS");
-        const text = await (await element.getProperty('textContent')).jsonValue();
-
-        // if the element exists and returns out of stock, ignore
-        if(text == "Out of stock"){ 
-            console.log("Still out of stock");
-        
-        // if there is no out of stock message, send an sms via twilio
-        }else{
-            client.messages
-                .create({
-                    body: 'Flour in stock!',
-                    from: twilioKeys.callFromNumber,
-                    to: twilioKeys.callToNumbers[0]
-                })
-                .then(message => console.log(message.sid));
-                
-                // cancel the timer loop instead of spamming my phone every 10 minutes
-                j.cancel();
+    // basically our init script, schedule the job to run
+    var j = schedule.scheduleJob('*/' + scheduleFrequency + ' * * * *', () => {
+        console.log("Job start");
+        for(i = 0; i < pages.length; i++){
+            scrape(pages[i]);
         }
 
+    });
 
-        await browser.close();
+    // the following args are required for running chromium-browser in WSL2, probably not needed if running under native windows command, linux bash, or mac terminal.
+    const browser = await puppeteer.launch({
+        args: ['--disable-gpu', '--single-process','--no-sandbox'] 
+    });
+
+    // open a new page, set the user agent, and browse to a url
+    // returns Promise<ChromePage>
+    async function openPage(url)
+    {
+        var page; 
+        return browser.newPage()
+            .then((thisPage) => {
+                console.log("Got new page, set user agent");
+                page = thisPage;
+                return page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36');
+            })
+            .then(() => {
+                console.log("User agent set, go to URL: " + url);
+                return page.goto(url);
+            })
+            .then(() => {
+                console.log(url + " Loaded");
+                return page
+            });
+    }
+
+    // our async function to actually scrape the website and check stock
+    // return void
+    async function scrape(page)
+    {
+        var chromePage;
+        // spawn a new page and get a URL
+        openPage(page.url) //returns a chromePage
+            .then(chromePageRes => {
+                chromePage = chromePageRes;
+                return chromePage.$(page.selector);
+            }) // take the chromepage and check for the selector
+            .then(element => element.getProperty('textContent')) // take the selector and return the textContent property
+            .then(textContent => textContent.jsonValue()) // take the textContent property and return the jsonvalue
+            .then(text => text.match(page.contains)) // take the json value and regex match it against the page contains value
+            .then(result => {
+                console.log("result: " + result); 
+                if(result){
+                    // out of stock condition matched
+                    console.log("Still out of stock");
+                }else{
+                    // no out of stock condition (result should be null);
+                    sendNotification(page);
+                }
+            }).then(() => {
+                chromePage.close();
+            })
+            .catch(err => console.log(err));
+
+    }
+
+    // send sms message
+    // returns promise<void>
+    async function sendNotification(page)
+    {
+        return client.messages
+            .create({
+                body: page.notificationMsg,
+                from: twilioKeys.callFromNumber,
+                to: twilioKeys.callToNumbers[0]
+            })
+            .then(message => console.log("Text sent:" + message.sid));
     }
 })();
