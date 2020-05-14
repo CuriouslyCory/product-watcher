@@ -16,7 +16,7 @@ module.exports = [
     {
         id: 'Reel-Paper-TP',
         url: 'https://reelpaper.com/',
-        selector: '.announcement-bar',
+        selector: '.announcement-br',
         contains: /TEMPORARILY SOLD OUT\./,
         notificationMsg: 'Reel TP is in stock!'
     },

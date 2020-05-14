@@ -75,13 +75,12 @@ var schedule = require('node-schedule');
                 return chromePage.waitFor(page.selector); // take the chromepage and check for the selector
             }) 
             .then(element => {
-                if(element){
                     return element.getProperty('textContent'); 
-                }else{
-                    // if the OOs element doesn't exist, is it back in stock?
-                    sendNotification(page);
-                    return;
-                }
+            }, ()=>{
+                // if the OOs element doesn't exist, is it back in stock?
+                console.log("Can't find element for " + page.id);
+                sendNotification(page);
+                return;
             }) // take the selector and return the textContent property
             .then(textContent => textContent.jsonValue()) // take the textContent property and return the jsonvalue
             .then(text => text.match(page.contains)) // take the json value and regex match it against the page contains value
