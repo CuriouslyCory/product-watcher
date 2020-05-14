@@ -1,33 +1,46 @@
+console.log("Init starting");
 // puppeteer is our headless chromium browser which unlike wget or curl will actually render the contents of the site and allow us to interact with it
+console.log("Load puppeteer");
 const puppeteer = require('puppeteer');
 
+console.log("Load twilio");
 // the following are our twilio credentials (sign up for a free trial at https://www.twilio.com/referral/MyIhxE)
 const twilioKeys = require ('./twilio-settings');
 const client = require('twilio')(twilioKeys.accountSid, twilioKeys.authToken);
+
+console.log("Load page config");
 const pages = require ('./pages');
 
+console.log("Load job scheduler");
 // node schedule acts as a crontab, allowing us to set a schedule to run functions
 var schedule = require('node-schedule');
 
+
+
 // sanitize our code
 (async () => {
-    
     // set the schedule frequency in minutes
     var scheduleFrequency = 10;
 
-    // basically our init script, schedule the job to run
-    var j = schedule.scheduleJob('*/' + scheduleFrequency + ' * * * *', () => {
-        console.log("Job start");
-        for(i = 0; i < pages.length; i++){
-            scrape(pages[i]);
-        }
-
-    });
-
     // the following args are required for running chromium-browser in WSL2, probably not needed if running under native windows command, linux bash, or mac terminal.
+    console.log("Init browser");
     const browser = await puppeteer.launch({
         args: ['--disable-gpu', '--single-process','--no-sandbox'] 
     });
+    
+    
+    // basically our init script, schedule the job to run
+    console.log("Init job");
+    // run the first batch immediatly
+    startJobs(pages);
+
+    // schedule the recurring future jobs
+    var j = schedule.scheduleJob('*/' + scheduleFrequency + ' * * * *', () => {
+        startJobs(pages);
+    });
+    console.log("Next job runs at: " + j.nextInvocation());
+
+    
 
     // open a new page, set the user agent, and browse to a url
     // returns Promise<ChromePage>
@@ -91,5 +104,13 @@ var schedule = require('node-schedule');
                 to: twilioKeys.callToNumbers[0]
             })
             .then(message => console.log("Text sent:" + message.sid));
+    }
+
+    function startJobs(pages){
+        console.log("Jobs start");
+        for(i = 0; i < pages.length; i++){
+            console.log(pages[i].id + " is starting");
+            scrape(pages[i]);
+        }
     }
 })();
