@@ -1,6 +1,8 @@
 # NodeJS based product watcher
 I bake a lot. Bread, pizza, more bread. These corona flour shortages have really put a cramp on my baking habits so instead of obsessivly mashing f5 on my favorite flour source, I built this simple watch script to check every 10 minutes and notify me via sms (a-la twilio) of any changes to the stock status.
 
+You could scrape html content with something like curl or wget, but that only gets the static content. To support content that may be dynamically or pulled in after domready I'm using puppeteer, a headless chromium implemenation to load and render the page before checking the dom for the content.
+
 ## Installation
 Clone this repository and npm install
 ```
@@ -36,3 +38,10 @@ $ npm run start
 ./index.js
 + scheduleFrequency - Time in minutes between job runs
 
+## Common issues
+Puppeteer should load chromium by default, however if you're running on WSL you'll need to install chromium using apt first. The following is what ended up working for me.
+```
+$ sudo apt-get update
+$ sudo apt-get upgrade
+$ sudo apt install chromium-browser
+```
