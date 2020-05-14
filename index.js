@@ -1,7 +1,8 @@
 // puppeteer is our headless chromium browser which unlike wget or curl will actually render the contents of the site and allow us to interact with it
 const puppeteer = require('puppeteer');
-const twilioKeys = require ('./twilio-settings');
+
 // the following are our twilio credentials (sign up for a free trial at https://www.twilio.com/referral/MyIhxE)
+const twilioKeys = require ('./twilio-settings');
 const client = require('twilio')(twilioKeys.accountSid, twilioKeys.authToken);
 
 // node schedule acts as a crontab, allowing us to set a schedule to run functions
@@ -43,11 +44,13 @@ var schedule = require('node-schedule');
         }else{
             client.messages
                 .create({
-                body: 'Flour in stock!',
-                from: '+12058801490',
-                to: '+16026971135'
+                    body: 'Flour in stock!',
+                    from: twilioKeys.callFromNumber,
+                    to: twilioKeys.callToNumbers[0]
                 })
                 .then(message => console.log(message.sid));
+                
+                // cancel the timer loop instead of spamming my phone every 10 minutes
                 j.cancel();
         }
 
