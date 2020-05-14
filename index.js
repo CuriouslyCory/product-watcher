@@ -71,21 +71,17 @@ var schedule = require('node-schedule');
         // spawn a new page and get a URL
         openPage(page.url) //returns a chromePage
             .then(chromePageRes => {
+                // set the page to a local variable so we can access it later.
                 chromePage = chromePageRes;
-                return chromePage.waitFor(page.selector); // take the chromepage and check for the selector
+
+                // take the chromepage and check for the selector
+                return chromePage.waitFor(page.selector, {timeout: 10000}); 
             }) 
-            .then(element => {
-                    return element.getProperty('textContent'); 
-            }, ()=>{
-                // if the OOs element doesn't exist, is it back in stock?
-                console.log("Can't find element for " + page.id);
-                sendNotification(page);
-                return;
-            }) // take the selector and return the textContent property
+            .then(element => element.getProperty('textContent'), ()=> new mockJsHandle()) // if the selector exists, get the textContent property from it, error creates empty object
             .then(textContent => textContent.jsonValue()) // take the textContent property and return the jsonvalue
             .then(text => text.match(page.contains)) // take the json value and regex match it against the page contains value
             .then(result => {
-                console.log("result: " + result); 
+                console.log(page.id + " result: " + result); 
                 if(result){
                     // out of stock condition matched
                     console.log("Still out of stock");
@@ -93,9 +89,7 @@ var schedule = require('node-schedule');
                     // no out of stock condition (result should be null);
                     sendNotification(page);
                 }
-            }).then(() => {
-                chromePage.close();
-            })
+            }).then(() => chromePage.close())
             .catch(err => {
                 console.log(err)
             });
@@ -123,3 +117,11 @@ var schedule = require('node-schedule');
         }
     }
 })();
+
+function mockJsHandle() {
+    return {
+        jsonValue: function(){
+            return '';
+        }
+    }
+}
