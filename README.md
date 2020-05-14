@@ -2,11 +2,33 @@
 I bake a lot. Bread, pizza, more bread. These corona flour shortages have really put a cramp on my baking habits so instead of obsessivly mashing f5 on my favorite flour source, I built this simple watch script to check every 10 minutes and notify me via sms (a-la twilio) of any changes to the stock status.
 
 ## Installation
-Clone this repository
-```$ git clone https://github.com/CuriouslyCory/ProductWatcher.git```
+Clone this repository and npm install
+```$ git clone https://github.com/CuriouslyCory/ProductWatcher.git
+$ cd ProductWatcher
+$ npm i```
 
 Update the twilio-settings.js file with your own api keys.
+
 Open the pages.js and add as many page records as you'd like to watch.
+
 Run the script:
-```$ node index.js```
+```$ npm run start```
+
+
+## Configuration
+./pages.js contains an array of page objects that define your watch
++ id - A Vanity id, that should be unique, to help decorate logs
++ url - The fully qualified url of the page that you'd like to scrape
++ selector - A valid CSS selector for the element that contains your out of stock message
++ contains - Text that the element contains that indicates it is out of stock
++ notificationMsg - Message text that you'll recieve via SMS when the out of stock message disappears. 
+
+./twilio-settings.js contains your twilio account info as well as your target outbound numbers
++ accountSid : Found in your twilio account
++ authToken : Found in your twilio account
++ callFromNumber: Twilio outbound number,
++ callToNumbers: [Array of numbers to send texts out to upon item in stock]
+
+./index.js
++ scheduleFrequency - Time in minutes between job runs
 
