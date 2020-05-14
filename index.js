@@ -20,7 +20,7 @@ var schedule = require('node-schedule');
 // sanitize our code
 (async () => {
     // set the schedule frequency in minutes
-    var scheduleFrequency = 10;
+    var scheduleFrequency = 60;
 
     // the following args are required for running chromium-browser in WSL2, probably not needed if running under native windows command, linux bash, or mac terminal.
     console.log("Init browser");
@@ -72,7 +72,7 @@ var schedule = require('node-schedule');
         openPage(page.url) //returns a chromePage
             .then(chromePageRes => {
                 chromePage = chromePageRes;
-                return chromePage.$(page.selector); // take the chromepage and check for the selector
+                return chromePage.waitFor(page.selector); // take the chromepage and check for the selector
             }) 
             .then(element => {
                 if(element){
