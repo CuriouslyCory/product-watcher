@@ -7,12 +7,10 @@ const puppeteer = require('puppeteer');
 // the following are our twilio credentials (sign up for a free trial at https://www.twilio.com/referral/MyIhxE)
 console.log("Load twilio");
 const twilioConfig = require ('./twilio-settings');
-const twilioClient = require('twilio')(twilioConfig.accountSid, twilioConfig.authToken);
 
 // ifttt webhook integration
 const IFTTT = require('node-ifttt-maker');
 const iftttConfig = require('./ifttt-settings');
-const ifttt = new IFTTT(iftttConfig.makerKey);
 
 // load the config for the pages we're watching
 console.log("Load page config");
@@ -31,6 +29,14 @@ var schedule = require('node-schedule');
     const browser = await puppeteer.launch({
         args: ['--disable-gpu', '--single-process','--no-sandbox'] 
     });
+
+    if(twilioConfig.enabled){
+        const twilioClient = require('twilio')(twilioConfig.accountSid, twilioConfig.authToken);
+    }
+
+    if(iftttConfig.enabled){
+        const ifttt = new IFTTT(iftttConfig.makerKey);
+    }
     
     // basically our init script, schedule the job to run
     // run the first batch immediatly
