@@ -22,6 +22,7 @@ $ npm run start
 
 
 ## Configuration
+### Page Watch List
 ./pages.js contains an array of page objects that define your watch
 + id - A Vanity id, that should be unique, to help decorate logs
 + url - The fully qualified url of the page that you'd like to scrape
@@ -29,16 +30,27 @@ $ npm run start
 + contains - Text that the element contains that indicates it is out of stock
 + notificationMsg - Message text that you'll recieve via SMS when the out of stock message disappears. 
 
+### Twilio integration
 ./twilio-settings.js contains your twilio account info as well as your target outbound numbers
++ enabled: Send alerts via SMS with twilio
 + accountSid : Found in your twilio account
 + authToken : Found in your twilio account
 + callFromNumber: Twilio outbound number,
 + callToNumbers: [Array of numbers to send texts out to upon item in stock]
 
+### IFTTT integration
+./ifttt-settings.js contains your ifttt integraion configuration
++ enabled: Send alerts to ifttt
++ makerKey : Can be found on https://ifttt.com/maker_webhooks/settings if you have webhooks configured
++ eventName : Event name defined in your ifttt webhook applet. Start at https://ifttt.com/create and select WebHooks for your "this"
+In your "That" configuration {{Value1}} is passed page.id, {{Value2}} is passed page.url
+
+### Important Variables
 ./index.js
 + scheduleFrequency - Time in minutes between job runs
 
 ## Common issues
+### WSL2
 Puppeteer should load chromium by default, however if you're running on WSL you'll need to install chromium using apt first. The following is what ended up working for me.
 ```
 $ sudo apt-get update
@@ -46,4 +58,5 @@ $ sudo apt-get upgrade
 $ sudo apt install chromium-browser
 ```
 
+### Can't find browser (not WSL2)
 If you get a console error complaining that it can't find a browser run ```$ npm i puppeteer``` from your install directory. For some reason it doesn't always install the chromium browser if installed from ```$ npm i```.

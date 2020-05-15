@@ -5,8 +5,13 @@ const puppeteer = require('puppeteer');
 
 console.log("Load twilio");
 // the following are our twilio credentials (sign up for a free trial at https://www.twilio.com/referral/MyIhxE)
-const twilioKeys = require ('./twilio-settings');
-const client = require('twilio')(twilioKeys.accountSid, twilioKeys.authToken);
+const twilioConfig = require ('./twilio-settings');
+const twilioClient = require('twilio')(twilioConfig.accountSid, twilioConfig.authToken);
+
+// ifttt webhook integration
+const IFTTT = require('node-ifttt-maker');
+const iftttConfig = require('./ifttt-settings');
+const ifttt = new IFTTT(iftttConfig.makerKey);
 
 console.log("Load page config");
 const pages = require ('./pages');
@@ -75,7 +80,7 @@ var schedule = require('node-schedule');
                 chromePage = chromePageRes;
 
                 // take the chromepage and check for the selector
-                return chromePage.waitFor(page.selector, {timeout: 10000}); 
+                return chromePage.waitFor(page.selector, {timeout: 20000}); 
             }) 
             .then(element => element.getProperty('textContent'), ()=> new mockJsHandle()) // if the selector exists, get the textContent property from it, error creates empty object
             .then(textContent => textContent.jsonValue()) // take the textContent property and return the jsonvalue
@@ -100,13 +105,24 @@ var schedule = require('node-schedule');
     // returns promise<void>
     async function sendNotification(page)
     {
-        return client.messages
+        if(iftttConfig.enabled){
+            const params = {value1: page.id, value2: page.url};
+            ifttt
+                .request({event: iftttConfig.eventName, params: params})
+                .then((response) => {})
+                .catch((err) => {});
+        }
+        
+        if(twilioConfig.enabled){
+            twilioClient.messages
             .create({
                 body: page.notificationMsg,
-                from: twilioKeys.callFromNumber,
-                to: twilioKeys.callToNumbers[0]
+                from: twilioConfig.callFromNumber,
+                to: twilioConfig.callToNumbers[0]
             })
             .then(message => console.log("Text sent:" + message.sid));
+        }
+
     }
 
     function startJobs(pages){
