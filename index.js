@@ -23,6 +23,8 @@ var schedule = require('node-schedule');
 (async () => {
     // set the schedule frequency in minutes
     var scheduleFrequency = 60;
+    var twilioClient;
+    var iftttClient; 
 
     // the following args are required for running chromium-browser in WSL2, probably not needed if running under native windows command, linux bash, or mac terminal.
     console.log("Init browser");
@@ -30,12 +32,15 @@ var schedule = require('node-schedule');
         args: ['--disable-gpu', '--single-process','--no-sandbox'] 
     });
 
+    
     if(twilioConfig.enabled){
-        const twilioClient = require('twilio')(twilioConfig.accountSid, twilioConfig.authToken);
+        console.log("Enabling twilio");
+        twilioClient = require('twilio')(twilioConfig.accountSid, twilioConfig.authToken);
     }
 
     if(iftttConfig.enabled){
-        const ifttt = new IFTTT(iftttConfig.makerKey);
+        console.log("Enabling ifttt");
+        iftttClient = new IFTTT(iftttConfig.makerKey);
     }
     
     // basically our init script, schedule the job to run
@@ -109,10 +114,12 @@ var schedule = require('node-schedule');
     {
         if(iftttConfig.enabled){
             const params = {value1: page.id, value2: page.url};
-            ifttt
-                .request({event: iftttConfig.eventName, params: params})
-                .then((response) => {})
-                .catch((err) => {});
+            iftttClient
+            .request({event: iftttConfig.eventName, params: params})
+            .then((response) => {
+                console.log("Sent event " + iftttConfig.eventName + " to IFTTT");
+            })
+            .catch((err) => {});    
         }
         
         if(twilioConfig.enabled){
