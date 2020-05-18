@@ -164,6 +164,13 @@ function MockJsHandle() {
 
 function GetDate()
 {
-    var now = new Date();
-    return now.getYear() + now.getMonth() + now.getDay() + "-" + now.getHours() + now.getMinutes();
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear();
+    var hh = String(today.getHours());
+    var ii = String(today.getMinutes());
+
+    today = yyyy + mm + dd + '-' + hh + ii;
+    return today;
 }
