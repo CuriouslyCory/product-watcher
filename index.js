@@ -60,9 +60,16 @@ var schedule = require('node-schedule');
     {
         var page; 
         return browser.newPage()
-            .then((thisPage) => {
-                console.log("Got new page, set user agent");
+            .then((thisPage) =>{
                 page = thisPage;
+                thisPage.setViewport({
+                    width: 1920,
+                    height: 1080,
+                    deviceScaleFactor: 1,
+                })
+            })
+            .then(() => {
+                console.log("Got new page, set user agent");
                 return page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36');
             })
             .then(() => {
@@ -97,9 +104,11 @@ var schedule = require('node-schedule');
                 if(result){
                     // out of stock condition matched
                     console.log("Still out of stock");
+                    return;
                 }else{
                     // no out of stock condition (result should be null);
                     SendNotification(page);
+                    return chromePage.screenshot({path: encodeURI(page.id) + GetDate() + 'in-stock.png'});
                 }
             }).then(() => chromePage.close())
             .catch(err => {
@@ -151,4 +160,10 @@ function MockJsHandle() {
             return '';
         }
     }
+}
+
+function GetDate()
+{
+    var now = new Date();
+    return now.getYear() + now.getMonth() + now.getDay() + "-" + now.getHours() + now.getMinutes();
 }
