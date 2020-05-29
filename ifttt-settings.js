@@ -5,7 +5,7 @@
 // $ echo "export MAKER_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXX" >> ~/.bashrc
 
 module.exports = {
-    enabled: true,
+    enabled : process.env.IFTTT_ENABLED ? process.env.IFTTT_ENABLED : true,
     makerKey : process.env.MAKER_KEY ? process.env.MAKER_KEY : 'XXXXXXXXXXXXXXXXXXXXXXXXXXX',
     eventName : process.env.EVENT_NAME ? process.env.EVENT_NAME : 'some_event_name'
 };
