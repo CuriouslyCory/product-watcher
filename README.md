@@ -59,7 +59,8 @@ Product Watcher can be run as a Docker container. As of this time, the container
 
 A copy of `pages.js` must be mounted as a volume with the destination of `/app/pages.js`. Here is an example of a `docker run` command, assuming the environment variables are already defined in the shell.
 
-```docker run --rm -v ${PWD}/pages.js:/app/pages.js -e TWILIO_SID -e TWILIO_TOKEN -e TWILIO_NUMBER -e RECIPIENT_NUMBER --name product-watcher docker.io/curiouslycory/product-watcher:0.0.0
+```
+docker run --rm -v ${PWD}/pages.js:/app/pages.js -e TWILIO_SID -e TWILIO_TOKEN -e TWILIO_NUMBER -e RECIPIENT_NUMBER --name product-watcher docker.io/curiouslycory/product-watcher:0.0.0
 ```
 
 ## Common issues
