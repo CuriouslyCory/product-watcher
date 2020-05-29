@@ -10,14 +10,14 @@ module.exports = [
         id: 'KingArthur-AP-5lb',
         url: 'https://shop.kingarthurflour.com/items/king-arthur-unbleached-all-purpose-flour-5-lb',
         selector: '#boMessage',
-        contains: /Item is temporarily unavailable\./,
+        contains: /Item is temporarily unavailable/,
         notificationMsg: 'King Arthur AP Flour in stock!'
     },
     {
         id: 'Reel-Paper-TP',
         url: 'https://reelpaper.com/',
         selector: '.announcement-bar',
-        contains: /TEMPORARILY SOLD OUT\./,
+        contains: /TEMPORARILY SOLD OUT/,
         notificationMsg: 'Reel TP is in stock!'
     },
     
