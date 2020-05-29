@@ -5,7 +5,7 @@
 // $ echo "export TWILIO_SID=XXXXXXXXXXXXXXXXXXXXXXXXXXX" >> ~/.bashrc
 
 module.exports = {
-    enabled: false,
+    enabled : process.env.TWILIO_ENABLED ? process.env.TWILIO_ENABLED : false,
     accountSid : process.env.TWILIO_SID ? process.env.TWILIO_SID : 'XXXXXXXXXXXXXXXXXXXXXXXXXXX',
     authToken : process.env.TWILIO_TOKEN ? process.env.TWILIO_TOKEN : 'XXXXXXXXXXXXXXXXXXXXXXXXXX',
     callFromNumber: process.env.TWILIO_NUMBER ? process.env.TWILIO_NUMBER : '+15555554202',
