@@ -38,6 +38,19 @@ $ npm run start
 ./index.js
 + scheduleFrequency - Time in minutes between job runs
 
+## Docker
+Product Watcher can be run as a Docker container. As of this time, the container isn't uploaded to Docker Hub. However, once you have built the container image, you must specify the following environment variables.
+
+* TWILIO_SID
+* TWILIO_TOKEN
+* TWILIO_NUMBER
+* RECIPIENT_NUMBER
+
+A copy of `pages.js` must be mounted as a volume with the destination of `/app/pages.js`. Here is an example of a `docker run` command, assuming the environment variables are already defined in the shell.
+
+```docker run --rm -v ${PWD}/pages.js:/app/pages.js -e TWILIO_SID -e TWILIO_TOKEN -e TWILIO_NUMBER -e RECIPIENT_NUMBER --name product-watcher docker.io/curiouslycory/product-watcher:0.0.0
+```
+
 ## Common issues
 Puppeteer should load chromium by default, however if you're running on WSL you'll need to install chromium using apt first. The following is what ended up working for me.
 ```
